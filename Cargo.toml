@@ -1,0 +1,8 @@
+[workspace]
+members = [
+  "generater",
+  "models",
+  "verifier",
+  ]
+
+resolver = "2"
