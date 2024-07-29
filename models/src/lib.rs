@@ -65,7 +65,7 @@ pub struct TxPartIndices {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AccountInfo {
-    pub balance: U256,
+    pub balance: revm::primitives::U256,
     pub code: Bytes,
     #[serde(
         deserialize_with = "deserialize_str_as_u64",
