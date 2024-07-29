@@ -26,6 +26,7 @@ use core::panic::PanicInfo;
 use core::ffi::c_void;
 
 use libc::{free, malloc};
+zkm_runtime::entrypoint!(main);
 
 #[panic_handler]
 fn panic(_panic: &PanicInfo<'_>) -> ! {
@@ -62,52 +63,16 @@ fn main(_argc: isize, _argv: *const *const u8) -> isize {
 }
 
 fn ethereum_test() {
-    let suite_json: String = r#"{
-        "_info": null,
-        "env": {
-          "currentCoinbase": "0x0000000000000000000000000000000000000000",
-          "currentDifficulty": "0x400000000",
-          "currentGasLimit": "0x1388",
-          "currentNumber": "0x0",
-          "currentTimestamp": "0x0",
-          "currentBaseFee": "0x3b9aca00",
-          "previousHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "currentRandom": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "currentBeaconRoot": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "currentWithdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421",
-          "parentBlobGasUsed": "0x0",
-          "parentExcessBlobGas": "0x0"
-        },
-        "pre": {},
-        "post": {},
-        "transaction": {
-          "data": [],
-          "gasLimit": [],
-          "gasPrice": null,
-          "nonce": "0x0",
-          "secretKey": "0x0000000000000000000000000000000000000000000000000000000000000000",
-          "sender": "0x0000000000000000000000000000000000000000",
-          "to": "0x0000000000000000000000000000000000000000",
-          "value": [],
-          "maxFeePerGas": null,
-          "maxPriorityFeePerGas": null,
-          "accessLists": [],
-          "blobVersionedHashes": [],
-          "maxFeePerBlobGas": null
-        },
-        "out": null
-      }"#.to_string();
-    let suite = read_suite(&suite_json);
-
+    let suite: TestSuite = zkm_runtime::io::read();
     assert!(execute_test_suite(suite).is_ok());
 }
 
-fn read_suite(s: &String) -> TestSuite {
-    let suite: TestUnit = serde_json::from_str(s).map_err(|e| e).unwrap();
-    let mut btm = BTreeMap::new();
-    btm.insert("test".to_string(), suite);
-    TestSuite(btm)
-}
+// fn read_suite(s: &String) -> TestSuite {
+//     let suite: TestUnit = serde_json::from_str(s).map_err(|e| e).unwrap();
+//     let mut btm = BTreeMap::new();
+//     btm.insert("test".to_string(), suite);
+//     TestSuite(btm)
+// }
 
 fn execute_test_suite(suite: TestSuite) -> Result<(), String> {
     for (_name, unit) in suite.0 {
@@ -124,8 +89,8 @@ fn execute_test_suite(suite: TestSuite) -> Result<(), String> {
         }
 
         let mut env = Env::default();
-        // for mainnet
-        env.cfg.chain_id = 1;
+        // TODO 1 for mainnet
+        env.cfg.chain_id = 1337;
         // env.cfg.spec_id is set down the road
 
         // block env
